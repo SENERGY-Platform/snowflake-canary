@@ -19,11 +19,13 @@ package process
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	devicerepo "github.com/SENERGY-Platform/device-repository/lib/client"
 	"github.com/SENERGY-Platform/snowflake-canary/pkg/configuration"
 	"github.com/SENERGY-Platform/snowflake-canary/pkg/devicemetadata"
 	"github.com/SENERGY-Platform/snowflake-canary/pkg/metrics"
 	"log"
+	"reflect"
 	"sync/atomic"
 	"time"
 )
@@ -193,8 +195,27 @@ func (this *Process) ProcessTeardown(token string) error {
 	return nil
 }
 
-func (this *Process) NotifyCommand(topic string, payload []byte) {
+func (this *Process) NotifyCommand(topic string, payload []byte) error {
 	this.receivedCommands.Add(1)
-	//TODO: check payload
-	log.Println("DEBUG: receive NotifyCommand()", string(payload))
+	message := RequestEnvelope{}
+	err := json.Unmarshal(payload, &message)
+	if err != nil {
+		log.Println("ERROR: unable to json unmarshal", string(payload), err)
+		return err
+	}
+	expectedMessagePayload := map[string]string{
+		"data":     `<commands><valueCommand value="42"/></commands>`,
+		"metadata": "on",
+	}
+	if !reflect.DeepEqual(message.Payload, expectedMessagePayload) {
+		return errors.New("unexpected command message:" + fmt.Sprintf("%#v", message.Payload))
+	}
+	return nil
+}
+
+type RequestEnvelope struct {
+	CorrelationId      string            `json:"correlation_id"`
+	Payload            map[string]string `json:"payload"`
+	Time               int64             `json:"timestamp"`
+	CompletionStrategy string            `json:"completion_strategy"`
 }

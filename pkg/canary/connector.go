@@ -114,7 +114,12 @@ func (this *Canary) subscribe(info DeviceInfo, conn *Conn) {
 	topic := "command/" + info.LocalId + "/+"
 	start := time.Now()
 	token := conn.Client.Subscribe(topic, 2, func(c paho.Client, message paho.Message) {
-		this.process.NotifyCommand(message.Topic(), message.Payload())
+		err := this.process.NotifyCommand(message.Topic(), message.Payload())
+		if err != nil {
+			log.Println("ERROR: unexpected command error", err)
+			this.metrics.UncategorizedErr.Inc()
+			return
+		}
 		go this.respond(conn, message.Topic(), message.Payload())
 	})
 	token.Wait()
@@ -235,7 +240,7 @@ func (this *Canary) checkDeviceValue(token string, info DeviceInfo, value1 int, 
 		{
 			"deviceId":   info.Id,
 			"serviceId":  serviceId,
-			"columnName": "value2",
+			"columnName": "area",
 		},
 	})
 	if err != nil {
@@ -264,19 +269,17 @@ func (this *Canary) checkDeviceValue(token string, info DeviceInfo, value1 int, 
 
 	if len(lastValues) != 2 {
 		this.metrics.UnexpectedDeviceDataErr.Inc()
-		log.Printf("UnexpectedDeviceDataErr: %#v\n", lastValues)
+		log.Printf("UnexpectedDeviceDataErr: lastValues=%#v\n", lastValues)
 		return
 	}
 
 	if !reflect.DeepEqual(lastValues[0].Value, expectedValue1) {
 		this.metrics.UnexpectedDeviceDataErr.Inc()
-		log.Printf("UnexpectedDeviceDataErr: %#v, %#v\n", lastValues[0].Value, expectedValue1)
-		return
+		log.Printf("UnexpectedDeviceDataErr: lastValues[0].Value=%#v, expectedValue1=%#v\n", lastValues[0].Value, expectedValue1)
 	}
 	if !reflect.DeepEqual(lastValues[1].Value, expectedValue2) {
 		this.metrics.UnexpectedDeviceDataErr.Inc()
-		log.Printf("UnexpectedDeviceDataErr: %#v, %#v\n", lastValues[1].Value, expectedValue2)
-		return
+		log.Printf("UnexpectedDeviceDataErr: lastValues[1].Value=%#v, expectedValue2=%#v\n", lastValues[1].Value, expectedValue2)
 	}
 }
 

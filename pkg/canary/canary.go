@@ -76,7 +76,7 @@ func New(ctx context.Context, wg *sync.WaitGroup, config configuration.Config) (
 }
 
 type Process interface {
-	NotifyCommand(topic string, payload []byte)
+	NotifyCommand(topic string, payload []byte) error
 	ProcessStartup(token string, info DeviceInfo) error
 	ProcessTeardown(token string) error
 }

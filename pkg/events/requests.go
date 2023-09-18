@@ -78,7 +78,7 @@ type Wrapper struct {
 	Name string `json:"name"`
 }
 
-const ExpectedCanaryDeploymentName = "canary_event_process"
+const ExpectedCanaryDeploymentName = "snowflake_canary_event_process"
 
 func (this *Events) ListCanaryProcessDeployments(token string) (ids []string, err error) {
 	endpoint := this.config.ProcessEngineWrapperUrl + "/v2/deployments"
