@@ -44,5 +44,5 @@
     "canary_protocol_segment_id_2": "urn:infai:ses:protocol-segment:9956d8b5-46fa-4381-a227-c1df69808997",
     "canary_protocol_segment_name_2": "metadata",
 
-    "canary_hub_name": "canary"
+    "canary_hub_name": "snowflake-canary"
 }
