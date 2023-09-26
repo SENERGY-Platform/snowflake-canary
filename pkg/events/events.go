@@ -49,7 +49,6 @@ func (this *Events) getChangeGuaranteeDuration() time.Duration {
 	return this.guaranteeChangeAfter
 }
 
-// TODO: update process to new events
 func (this *Events) ProcessStartup(token string, info DeviceInfo) error {
 	ids, err := this.ListCanaryProcessDeployments(token)
 	if err != nil {
@@ -150,11 +149,11 @@ func (this *Events) ProcessTeardown(token string) error {
 
 	if err != nil {
 		this.metrics.UncategorizedErr.Inc()
-		log.Println("ERROR: unexpected process list count", err)
+		log.Println("ERROR: unexpected event process list count", err)
 	} else {
 		if len(instances) != 1 {
 			this.metrics.UncategorizedErr.Inc()
-			log.Println("ERROR: unexpected process instance list count", len(instances))
+			log.Println("ERROR: unexpected event process instance list count", len(instances))
 		} else {
 			if instances[0].State != "COMPLETED" {
 				this.metrics.UnexpectedEventProcessInstanceStateErr.Inc()
