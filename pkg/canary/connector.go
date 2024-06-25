@@ -112,6 +112,9 @@ func (this *Canary) disconnect(conn *Conn) {
 func (this *Canary) subscribe(info DeviceInfo, conn *Conn) {
 	this.metrics.ConnectorSubscribeCount.Inc()
 	topic := "command/" + info.LocalId + "/+"
+	if this.config.TopicsWithOwner {
+		topic = "command/" + info.OwnerId + "/" + info.LocalId + "/+"
+	}
 	start := time.Now()
 	token := conn.Client.Subscribe(topic, 2, func(c paho.Client, message paho.Message) {
 		err := this.process.NotifyCommand(message.Topic(), message.Payload())
@@ -187,6 +190,9 @@ func (this *Canary) publish(info DeviceInfo, conn *Conn, value1 int, value2 int)
 
 	this.metrics.ConnectorPublishCount.Inc()
 	topic := "event/" + info.LocalId + "/sensor"
+	if this.config.TopicsWithOwner {
+		topic = "event/" + info.OwnerId + "/" + info.LocalId + "/sensor"
+	}
 
 	start := time.Now()
 	token := conn.Client.Publish(topic, 2, false, msg)
