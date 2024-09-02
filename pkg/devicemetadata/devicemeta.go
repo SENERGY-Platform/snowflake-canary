@@ -78,8 +78,8 @@ func (this *DeviceMetaData) CreateCanaryDevice(token string) (device DeviceInfo,
 		return device, err
 	}
 	device = DeviceInfo{
-		LocalId: "canary_" + uuid.NewString(),
-		Name:    "canary-" + time.Now().String(),
+		LocalId: "snowflake-canary_" + uuid.NewString(),
+		Name:    "snowflake-canary-" + time.Now().String(),
 		Attributes: []models.Attribute{{
 			Key:    AttributeUsedForCanaryDevice,
 			Value:  "true",
@@ -159,8 +159,8 @@ func (this *DeviceMetaData) ListCanaryDeviceTypes(token string) (result []Device
 
 func (this *DeviceMetaData) CreateCanaryDeviceType(token string) (deviceType DeviceTypeInfo, err error) {
 	dt := models.DeviceType{
-		Name:          "canary-device-type",
-		Description:   "used for canary service github.com/SENERGY-Platform/canary",
+		Name:          "snowflake-canary-device-type",
+		Description:   "used for canary service github.com/SENERGY-Platform/snowflake-canary",
 		DeviceClassId: this.config.CanaryDeviceClassId,
 		Attributes: []models.Attribute{{
 			Key:    AttributeUsedForCanaryDeviceType,
@@ -177,13 +177,37 @@ func (this *DeviceMetaData) CreateCanaryDeviceType(token string) (deviceType Dev
 				Inputs: []models.Content{
 					{
 						ContentVariable: models.ContentVariable{
-							Name:             "value",
-							Type:             models.Type(this.config.CanaryCmdValueType),
-							CharacteristicId: this.config.CanaryCmdCharacteristicId,
-							FunctionId:       this.config.CanaryCmdFunctionId,
+							Name: "commands",
+							Type: models.Structure,
+							SubContentVariables: []models.ContentVariable{
+								{
+									Name: "valueCommand",
+									Type: models.Structure,
+									SubContentVariables: []models.ContentVariable{
+										{
+											Name:                 "value",
+											Type:                 models.Type(this.config.CanaryCmdValueType),
+											CharacteristicId:     this.config.CanaryCmdCharacteristicId,
+											FunctionId:           this.config.CanaryCmdFunctionId,
+											SerializationOptions: []string{models.SerializationOptionXmlAttribute},
+										},
+									},
+								},
+							},
 						},
-						Serialization:     models.JSON,
+						Serialization:     models.XML,
 						ProtocolSegmentId: this.config.CanaryProtocolSegmentId,
+					},
+					{
+						ContentVariable: models.ContentVariable{
+							Name:             "flag",
+							Type:             models.Type(this.config.CanaryCmdValueType2),
+							CharacteristicId: this.config.CanaryCmdCharacteristicId2,
+							FunctionId:       this.config.CanaryCmdFunctionId2,
+							Value:            this.config.CanaryCmdCharacteristicId2DefaultValue,
+						},
+						Serialization:     models.PlainText,
+						ProtocolSegmentId: this.config.CanaryProtocolSegmentId2,
 					},
 				},
 			},
@@ -191,19 +215,43 @@ func (this *DeviceMetaData) CreateCanaryDeviceType(token string) (deviceType Dev
 				LocalId:     SensorServiceLocalId,
 				Name:        "sensor",
 				Description: "canary sensor service, needed to test device data handling",
-				Interaction: models.EVENT,
+				Interaction: models.EVENT_AND_REQUEST,
 				ProtocolId:  this.config.CanaryProtocolId,
 				Outputs: []models.Content{
 					{
 						ContentVariable: models.ContentVariable{
-							Name:             "value",
-							Type:             models.Type(this.config.CanarySensorValueType),
-							CharacteristicId: this.config.CanarySensorCharacteristicId,
-							FunctionId:       this.config.CanarySensorFunctionId,
-							AspectId:         this.config.CanarySensorAspectId,
+							Name: "measurements",
+							Type: models.Structure,
+							SubContentVariables: []models.ContentVariable{
+								{
+									Name: "measurement",
+									Type: models.Structure,
+									SubContentVariables: []models.ContentVariable{
+										{
+											Name:                 "value",
+											Type:                 models.Type(this.config.CanarySensorValueType),
+											CharacteristicId:     this.config.CanarySensorCharacteristicId,
+											FunctionId:           this.config.CanarySensorFunctionId,
+											AspectId:             this.config.CanarySensorAspectId,
+											SerializationOptions: []string{models.SerializationOptionXmlAttribute},
+										},
+									},
+								},
+							},
+						},
+						Serialization:     models.XML,
+						ProtocolSegmentId: this.config.CanaryProtocolSegmentId,
+					},
+					{
+						ContentVariable: models.ContentVariable{
+							Name:             "area",
+							Type:             models.Type(this.config.CanarySensorValueType2),
+							CharacteristicId: this.config.CanarySensorCharacteristicId2,
+							FunctionId:       this.config.CanarySensorFunctionId2,
+							AspectId:         this.config.CanarySensorAspectId2,
 						},
 						Serialization:     models.JSON,
-						ProtocolSegmentId: this.config.CanaryProtocolSegmentId,
+						ProtocolSegmentId: this.config.CanaryProtocolSegmentId2,
 					},
 				},
 			},
