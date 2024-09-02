@@ -19,7 +19,6 @@ package canary
 import (
 	"context"
 	devicerepo "github.com/SENERGY-Platform/device-repository/lib/client"
-	"github.com/SENERGY-Platform/permission-search/lib/client"
 	"github.com/SENERGY-Platform/snowflake-canary/pkg/configuration"
 	"github.com/SENERGY-Platform/snowflake-canary/pkg/devicemetadata"
 	"github.com/SENERGY-Platform/snowflake-canary/pkg/events"
@@ -40,7 +39,6 @@ type Canary struct {
 	promHttpHandler      http.Handler
 	isRunningMux         sync.Mutex
 	isRunning            bool
-	permissions          client.Client
 	guaranteeChangeAfter time.Duration
 	devicerepo           devicerepo.Interface
 	process              Process
@@ -55,8 +53,7 @@ func New(ctx context.Context, wg *sync.WaitGroup, config configuration.Config) (
 	m := metrics.NewMetrics(reg)
 
 	d := devicerepo.NewClient(config.DeviceRepositoryUrl)
-	permissions := client.NewClient(config.PermissionSearchUrl)
-	devicemeta := devicemetadata.NewDeviceMetaData(permissions, d, m, config, guaranteeChangeAfter)
+	devicemeta := devicemetadata.NewDeviceMetaData(d, m, config, guaranteeChangeAfter)
 
 	p := process.New(config, d, m, guaranteeChangeAfter)
 
@@ -66,7 +63,6 @@ func New(ctx context.Context, wg *sync.WaitGroup, config configuration.Config) (
 		reg:                  reg,
 		metrics:              m,
 		config:               config,
-		permissions:          permissions,
 		devicerepo:           d,
 		guaranteeChangeAfter: guaranteeChangeAfter,
 		devicemeta:           devicemeta,
