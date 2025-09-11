@@ -69,7 +69,7 @@ func (this *Canary) testDeviceConnection(wg *sync.WaitGroup, token string, info 
 			return
 		}
 
-		conn, err := this.connect(hubId)
+		conn, err := this.connect(token, hubId)
 		if err != nil {
 			return
 		}

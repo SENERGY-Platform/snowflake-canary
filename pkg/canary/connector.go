@@ -20,11 +20,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/SENERGY-Platform/device-repository/lib/model"
-	"github.com/SENERGY-Platform/models/go/models"
-	"github.com/SENERGY-Platform/snowflake-canary/pkg/configuration"
-	"github.com/SENERGY-Platform/snowflake-canary/pkg/devicemetadata"
-	paho "github.com/eclipse/paho.mqtt.golang"
 	"log"
 	"net/http"
 	"reflect"
@@ -32,6 +27,12 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/SENERGY-Platform/device-repository/lib/model"
+	"github.com/SENERGY-Platform/models/go/models"
+	"github.com/SENERGY-Platform/snowflake-canary/pkg/configuration"
+	"github.com/SENERGY-Platform/snowflake-canary/pkg/devicemetadata"
+	paho "github.com/eclipse/paho.mqtt.golang"
 )
 
 type PermDevice = devicemetadata.PermDevice
@@ -60,13 +61,11 @@ type Conn struct {
 	Client paho.Client
 }
 
-func (this *Canary) connect(hubId string) (conn *Conn, err error) {
+func (this *Canary) connect(token string, hubId string) (conn *Conn, err error) {
 	conn = &Conn{}
 
 	options := paho.NewClientOptions().
 		SetClientID(hubId).
-		SetUsername(this.config.AuthUsername).
-		SetPassword(this.config.AuthPassword).
 		SetAutoReconnect(true).
 		SetCleanSession(true).
 		AddBroker(this.config.ConnectorMqttBrokerUrl).
@@ -74,16 +73,30 @@ func (this *Canary) connect(hubId string) (conn *Conn, err error) {
 			log.Println("lost connection:", hubId, err)
 		})
 
+	if this.config.UseCert {
+		exp, err := time.ParseDuration(this.config.CertExpTime)
+		if err != nil {
+			return conn, err
+		}
+		tlsConf, err := this.getTlsConfig(token, hubId, exp)
+		if err != nil {
+			return conn, err
+		}
+		options = options.SetTLSConfig(tlsConf)
+	} else {
+		options = options.SetUsername(this.config.AuthUsername).SetPassword(this.config.AuthPassword)
+	}
+
 	this.metrics.ConnectorLoginCount.Inc()
 	conn.Client = paho.NewClient(options)
 	start := time.Now()
-	token := conn.Client.Connect()
-	token.Wait()
+	conToken := conn.Client.Connect()
+	conToken.Wait()
 	this.metrics.ConnectorLoginLatencyMs.Set(float64(time.Since(start).Milliseconds()))
-	if token.Error() != nil {
-		log.Println("Error on Client.Connect(): ", token.Error())
+	if conToken.Error() != nil {
+		log.Println("Error on Client.Connect(): ", conToken.Error())
 		this.metrics.ConnectorLoginErr.Inc()
-		return conn, token.Error()
+		return conn, conToken.Error()
 	}
 	return conn, nil
 }
