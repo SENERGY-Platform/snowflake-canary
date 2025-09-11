@@ -1,2 +1,4 @@
 .idea
 snowflake-canary
+cert.pem
+key.pem
