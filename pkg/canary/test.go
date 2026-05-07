@@ -17,7 +17,6 @@
 package canary
 
 import (
-	"log"
 	"math/rand"
 	"sync"
 	"time"
@@ -25,14 +24,14 @@ import (
 
 func (this *Canary) StartTests() {
 	go func() {
-		log.Println("start canary tests")
+		this.config.GetLogger().Info("start canary tests")
 		isCurrentlyRunning, done := this.running()
 		if isCurrentlyRunning {
-			log.Println("test are currently already running")
+			this.config.GetLogger().Info("test are currently already running")
 			return
 		}
 		defer done()
-		defer log.Println("canary tests are finished")
+		defer this.config.GetLogger().Info("canary tests are finished")
 		wg := &sync.WaitGroup{}
 
 		token, refresh, err := this.login()

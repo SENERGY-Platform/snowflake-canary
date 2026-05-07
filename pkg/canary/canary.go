@@ -18,6 +18,10 @@ package canary
 
 import (
 	"context"
+	"net/http"
+	"sync"
+	"time"
+
 	devicerepo "github.com/SENERGY-Platform/device-repository/lib/client"
 	"github.com/SENERGY-Platform/snowflake-canary/pkg/configuration"
 	"github.com/SENERGY-Platform/snowflake-canary/pkg/devicemetadata"
@@ -26,10 +30,6 @@ import (
 	"github.com/SENERGY-Platform/snowflake-canary/pkg/process"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"log"
-	"net/http"
-	"sync"
-	"time"
 )
 
 type Canary struct {
@@ -87,7 +87,7 @@ func (this *Canary) GetMetricsHandler() (h http.Handler, err error) {
 }
 
 func (this *Canary) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
-	log.Printf("%v [%v] %v \n", request.RemoteAddr, request.Method, request.URL)
+	this.config.GetLogger().Info("handle prometheus request", "remote_addr", request.RemoteAddr, "method", request.Method, "url", request.URL)
 	if this.promHttpHandler == nil {
 		this.promHttpHandler = promhttp.HandlerFor(
 			this.reg,
