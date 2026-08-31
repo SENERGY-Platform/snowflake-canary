@@ -85,6 +85,7 @@ type Config struct {
 	CertKeyFilePath  string `json:"cert_key_file_path"`
 	CertFilePath     string `json:"cert_file_path"`
 	CertExpTime      string `json:"cert_exp_time"`
+	CertRenewBefore  string `json:"cert_renew_before"`
 
 	LogLevel string       `json:"log_level"`
 	logger   *slog.Logger `json:"-"`

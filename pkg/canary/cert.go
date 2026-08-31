@@ -67,7 +67,14 @@ func (this *Canary) loadClientCertFromFile() (cert tls.Certificate, err error) {
 		this.config.GetLogger().Error("error in tls.LoadX509KeyPair()", "error", err)
 		return cert, errors.Join(ErrNewCertNeeded, err)
 	}
-	if cert.Leaf != nil && !cert.Leaf.NotAfter.IsZero() && cert.Leaf.NotAfter.Before(time.Now()) {
+	renewBefore, err := time.ParseDuration(this.config.CertRenewBefore)
+	if err != nil {
+		this.config.GetLogger().Warn("unable to parse cert_renew_before --> fall back to 30 days", "error", err)
+		renewBefore = 30 * 24 * time.Hour
+		err = nil
+	}
+
+	if cert.Leaf != nil && !cert.Leaf.NotAfter.IsZero() && cert.Leaf.NotAfter.Before(time.Now().Add(renewBefore)) {
 		return cert, fmt.Errorf("%w: cert expired", ErrNewCertNeeded)
 	}
 	return cert, nil

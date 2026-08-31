@@ -4,7 +4,7 @@ go 1.26.1
 
 require (
 	github.com/SENERGY-Platform/cert-certificate-authority v0.0.13
-	github.com/SENERGY-Platform/device-repository v0.3.5
+	github.com/SENERGY-Platform/device-repository v0.3.6
 	github.com/SENERGY-Platform/go-service-base/struct-logger v0.8.0
 	github.com/SENERGY-Platform/models/go v0.0.0-20260710115411-5b8e00d6e038
 	github.com/eclipse/paho.mqtt.golang v1.4.3
