@@ -18,21 +18,21 @@
 
     "canary_device_class_id": "urn:infai:ses:device-class:997937d6-c5f3-4486-b67c-114675038393", "//canary_device_class_id": "Thermostat",
 
-    "canary_cmd_function_id": "urn:infai:ses:controlling-function:99240d90-02dd-4d4f-a47c-069cfe77629c", "//canary_cmd_function_id": "Set Target Temperature",
+    "canary_cmd_function_id": "urn:infai:ses:controlling-function:df08a869-f6b7-4c8a-ada7-2147255b6d70", "//canary_cmd_function_id": "Set-Temperature",
     "canary_cmd_characteristic_id": "urn:infai:ses:characteristic:a49a48fc-3a2c-4149-ac7f-1a5482d4c6e1", "//canary_cmd_characteristic_id": "Degree Celsius (int)",
     "canary_cmd_value_type": "https://schema.org/Integer",
 
-    "canary_cmd_function_id_2": "urn:infai:ses:controlling-function:39b0e578-0111-4c95-994b-0d6728d474b3","//canary_cmd_function_id_2": "Set Device Toggle",
+    "canary_cmd_function_id_2": "urn:infai:ses:controlling-function:e25ef80f-e1ed-4340-b9a5-ce2fd53f958a","//canary_cmd_function_id_2": "Set-Binary State",
     "canary_cmd_characteristic_id_2": "urn:infai:ses:characteristic:7621686a-56bc-402d-b4cc-5b266d39736f","//canary_cmd_characteristic_id_2": "Binary State (on/off)",
     "canary_cmd_value_type_2": "https://schema.org/Text",
     "canary_cmd_characteristic_id_2_default_value": "on",
 
-    "canary_sensor_function_id": "urn:infai:ses:measuring-function:f2769eb9-b6ad-4f7e-bd28-e4ea043d2f8b","//canary_sensor_function_id": "Get Temperature",
+    "canary_sensor_function_id": "urn:infai:ses:measuring-function:d19ffeb0-877c-4611-951c-b3fc37d9b9ba","//canary_sensor_function_id": "Get-Temperature",
     "canary_sensor_characteristic_id": "urn:infai:ses:characteristic:a49a48fc-3a2c-4149-ac7f-1a5482d4c6e1","//canary_sensor_characteristic_id": "Degree Celsius (int)",
     "canary_sensor_aspect_id": "urn:infai:ses:aspect:a14c5efb-b0b6-46c3-982e-9fded75b5ab6","//canary_sensor_aspect_id": "Air",
     "canary_sensor_value_type": "https://schema.org/Integer",
 
-    "canary_sensor_function_id_2": "urn:infai:ses:measuring-function:f4f74bfc-7a58-42cb-855a-e540d566c2fc","//canary_sensor_function_id_2": "Get Area",
+    "canary_sensor_function_id_2": "urn:infai:ses:measuring-function:f4f74bfc-7a58-42cb-855a-e540d566c2fc","//canary_sensor_function_id_2": "Get-Area",
     "canary_sensor_characteristic_id_2": "urn:infai:ses:characteristic:733d95d9-f7d7-4f2e-9778-14eed5a91824","//canary_sensor_characteristic_id_2": "Square Meter",
     "canary_sensor_aspect_id_2": "urn:infai:ses:aspect:a14c5efb-b0b6-46c3-982e-9fded75b5ab6","//canary_sensor_aspect_id_2": "Air",
     "canary_sensor_value_type_2": "https://schema.org/Float",
