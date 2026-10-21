@@ -22,7 +22,8 @@ import (
 	"sync"
 	"time"
 
-	devicerepo "github.com/SENERGY-Platform/device-repository/lib/client"
+	devicerepo "github.com/SENERGY-Platform/device-repository/v3/lib/client"
+	"github.com/SENERGY-Platform/snowflake-canary/pkg/automation"
 	"github.com/SENERGY-Platform/snowflake-canary/pkg/configuration"
 	"github.com/SENERGY-Platform/snowflake-canary/pkg/devicemetadata"
 	"github.com/SENERGY-Platform/snowflake-canary/pkg/events"
@@ -55,9 +56,11 @@ func New(ctx context.Context, wg *sync.WaitGroup, config configuration.Config) (
 	d := devicerepo.NewClient(config.DeviceRepositoryUrl, nil)
 	devicemeta := devicemetadata.NewDeviceMetaData(d, m, config, guaranteeChangeAfter)
 
-	p := process.New(config, d, m, guaranteeChangeAfter)
+	engine := automation.New(config.AutomationEngineUrl)
 
-	e := events.New(config, d, m, guaranteeChangeAfter)
+	p := process.New(config, d, engine, m, guaranteeChangeAfter)
+
+	e := events.New(config, d, engine, m, guaranteeChangeAfter)
 
 	return &Canary{
 		reg:                  reg,

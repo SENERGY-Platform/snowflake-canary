@@ -13,8 +13,7 @@
     "connector_mqtt_broker_url": "tls://certconnector.senergy.infai.org:28888",
     "last_value_query_url": "https://api.senergy.infai.org/db/v3/last-values",
     "notification_url": "https://api.senergy.infai.org/notifications-v2",
-    "process_deployment_url": "https://api.senergy.infai.org/process/deployment",
-    "process_engine_wrapper_url": "https://api.senergy.infai.org/process/engine",
+    "automation_engine_url": "https://api.senergy.infai.org/automation-engine",
 
     "canary_device_class_id": "urn:infai:ses:device-class:997937d6-c5f3-4486-b67c-114675038393", "//canary_device_class_id": "Thermostat",
 
