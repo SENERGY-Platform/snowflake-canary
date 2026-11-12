@@ -73,12 +73,14 @@ type Metrics struct {
 	UnexpectedProcessInstanceStateErr                 prometheus.Counter
 	ProcessUnexpectedCommandCountError                prometheus.Counter
 	ProcessInstanceDurationMs                         prometheus.Gauge
+	ProcessLeftoverDeployments                        prometheus.Gauge
 	ProcessPreparedDeploymentErr                      prometheus.Counter
 	ProcessUnexpectedPreparedDeploymentSelectablesErr prometheus.Counter
 
 	EventProcessDeploymentErr                              prometheus.Counter
 	UnexpectedEventProcessInstanceStateErr                 prometheus.Counter
 	EventProcessInstanceDurationMs                         prometheus.Gauge
+	EventProcessLeftoverDeployments                        prometheus.Gauge
 	EventProcessPreparedDeploymentErr                      prometheus.Counter
 	EventProcessUnexpectedPreparedDeploymentSelectablesErr prometheus.Counter
 }
@@ -250,6 +252,10 @@ func NewMetrics(reg prometheus.Registerer) *Metrics {
 			Name: "snowflake_canary_process_instance_duration_ms",
 			Help: "duration of process run in ms",
 		}),
+		ProcessLeftoverDeployments: prometheus.NewGauge(prometheus.GaugeOpts{
+			Name: "snowflake_canary_process_leftover_deployments",
+			Help: "canary deployments that could not be deleted and are skipped by the test",
+		}),
 		ProcessPreparedDeploymentErr: prometheus.NewCounter(prometheus.CounterOpts{
 			Name: "snowflake_canary_process_prepared_deployment_err",
 			Help: "total count of prepared process errors since canary startup",
@@ -270,6 +276,10 @@ func NewMetrics(reg prometheus.Registerer) *Metrics {
 		EventProcessInstanceDurationMs: prometheus.NewGauge(prometheus.GaugeOpts{
 			Name: "snowflake_canary_event_process_instance_duration_ms",
 			Help: "duration of process run in ms",
+		}),
+		EventProcessLeftoverDeployments: prometheus.NewGauge(prometheus.GaugeOpts{
+			Name: "snowflake_canary_event_process_leftover_deployments",
+			Help: "canary deployments that could not be deleted and are skipped by the test",
 		}),
 		EventProcessPreparedDeploymentErr: prometheus.NewCounter(prometheus.CounterOpts{
 			Name: "snowflake_canary_event_process_prepared_deployment_err",
@@ -333,12 +343,14 @@ func NewMetrics(reg prometheus.Registerer) *Metrics {
 	reg.MustRegister(m.UnexpectedProcessInstanceStateErr)
 	reg.MustRegister(m.ProcessUnexpectedCommandCountError)
 	reg.MustRegister(m.ProcessInstanceDurationMs)
+	reg.MustRegister(m.ProcessLeftoverDeployments)
 	reg.MustRegister(m.ProcessPreparedDeploymentErr)
 	reg.MustRegister(m.ProcessUnexpectedPreparedDeploymentSelectablesErr)
 
 	reg.MustRegister(m.EventProcessDeploymentErr)
 	reg.MustRegister(m.UnexpectedEventProcessInstanceStateErr)
 	reg.MustRegister(m.EventProcessInstanceDurationMs)
+	reg.MustRegister(m.EventProcessLeftoverDeployments)
 	reg.MustRegister(m.EventProcessPreparedDeploymentErr)
 	reg.MustRegister(m.EventProcessUnexpectedPreparedDeploymentSelectablesErr)
 

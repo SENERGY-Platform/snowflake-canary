@@ -39,6 +39,7 @@ type Process struct {
 	guaranteeChangeAfter time.Duration
 	receivedCommands     atomic.Int64
 	metrics              *metrics.Metrics
+	leftovers            automation.Leftovers
 }
 
 type DeviceInfo = devicemetadata.DeviceInfo
@@ -67,15 +68,8 @@ func (this *Process) ProcessStartup(token string, info DeviceInfo) error {
 		this.config.GetLogger().Error("error in ListCanaryProcessDeployments", "error", err)
 		return err
 	}
-	//cleanup
-	for _, id := range ids {
-		err = this.DeleteProcess(token, id)
-		if err != nil {
-			this.metrics.UncategorizedErr.Inc()
-			this.config.GetLogger().Error("error in DeleteProcess", "error", err)
-			return err
-		}
-	}
+	this.leftovers.Prune(ids)
+	this.cleanupDeployments(token, ids)
 
 	dt, err, _ := this.devicerepo.ReadDeviceType(info.DeviceTypeId, token)
 	if err != nil {
@@ -140,6 +134,7 @@ func (this *Process) ProcessTeardown(token string) error {
 		this.metrics.UncategorizedErr.Inc()
 		return err
 	}
+	ids = this.leftovers.Without(ids)
 	if len(ids) != 1 {
 		this.metrics.UncategorizedErr.Inc()
 		this.config.GetLogger().Error("unexpected process deployment list count", "count", len(ids), "expected", 1)
@@ -163,15 +158,7 @@ func (this *Process) ProcessTeardown(token string) error {
 		}
 	}
 
-	//cleanup
-	for _, id := range ids {
-		err = this.DeleteProcess(token, id)
-		if err != nil {
-			this.metrics.UncategorizedErr.Inc()
-			this.config.GetLogger().Error("error in DeleteProcess", "error", err)
-			return err
-		}
-	}
+	this.cleanupDeployments(token, ids)
 
 	if this.receivedCommands.Load() == 0 {
 		this.metrics.ProcessUnexpectedCommandCountError.Inc()
@@ -203,4 +190,14 @@ type RequestEnvelope struct {
 	Payload            map[string]string `json:"payload"`
 	Time               int64             `json:"timestamp"`
 	CompletionStrategy string            `json:"completion_strategy"`
+}
+
+// cleanupDeployments deletes the given deployments; one that cannot be deleted is skipped by later runs instead of failing them.
+func (this *Process) cleanupDeployments(token string, ids []string) {
+	count := this.leftovers.Cleanup(ids, func(id string) error {
+		return this.DeleteProcess(token, id)
+	}, func(id string, err error) {
+		this.config.GetLogger().Warn("canary deployment could not be deleted, skipping it", "deployment-id", id, "error", err)
+	})
+	this.metrics.ProcessLeftoverDeployments.Set(float64(count))
 }
